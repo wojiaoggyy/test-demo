@@ -5,8 +5,10 @@
 <body>
     <script type="text/javascript">
         function pushNotice(){
+            console.log(1)
             //判断是否有显示通知的权限
             if(Notification.permission=="granted"){
+            console.log(2)
                 //初始化通知对象
                 var options = {
                       body: "您有新的未读消息"
@@ -14,7 +16,9 @@
                   var notice = new Notification("通知",options);
             }else{console.log(Notification.permission)}
         }
-        Notification.requestPermission().then(res=>{pushNotice()})
+        Notification.requestPermission().then(res=>{
+            pushNotice()
+        })
         
     </script>
 </body>
