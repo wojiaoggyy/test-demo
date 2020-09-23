@@ -1,41 +1,78 @@
-<!DOCTYPE html>
 <html>
-
 <head>
-    <title>通知测试</title>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Notification</title>
 </head>
-
 <body>
-    <button id="btn">点我</button>
-    <script type="text/javascript">
-    function showNotification() {
-        if (window.Notification) {
-            document.querySelector("#btn").onclick = function() {
-                //判断是否有权限显示通知
-                if (Notification.permission == "granted") {
-                    pushNotice();
-                } else if (Notification.permission != "denied") {
-                    //如果不是拒绝显示通知就请求允许显示通知
-                    Notification.requestPermission(function(permission) {
-                        pushNotice();
-                    });
-                }
-            }
-        }
-    }
 
-    function pushNotice() {
-        //判断是否有显示通知的权限
-        if (Notification.permission == "granted") {
-            //初始化通知对象
-            var options = {
-                body: "您有新的未读消息"
+<button onclick="notification.show()">有MM要加你为好友！</button>
+
+<script type="text/javascript">
+    const NOTIFICATION_PERMISSION = Object.create(null, {
+        GRANTED: { value: 'granted' },
+        DENIED: { value: 'denied' },
+        DEFAULT: { value: 'default' }
+    });
+    const notification = {
+        show() {
+            if (!('Notification' in window)) {
+                console.warn('当前浏览器不支持！如果想加MM请立即升级浏览器！');
+                return;
             }
-            var notice = new Notification("通知", options);
+
+            if (Notification.permission !== NOTIFICATION_PERMISSION.GRANTED) {
+                // 未授权
+                this.permission();
+                return;
+            }
+
+            this.notify();
+        },
+        async permission() {
+            const permission = await Notification.requestPermission();
+            if (permission === NOTIFICATION_PERMISSION.GRANTED) {
+                this.notify();
+                return;
+            }
+            alert('您已拒绝MM好友邀请！');
+        },
+        notify() {
+            const notification = new Notification('Hi, 有MM想要加你为好友！', {
+                tag: Math.random().toString(16).substring(2, 8) + (+new Date()),
+                icon: 'https://box.bdimg.com/static/fisp_static/common/img/searchbox/logo_news_276_88_1f9876a.png',
+                body: '一位漂亮MM距离你0.01km，请接收她的好友邀请吧~',
+                image: 'https://box.bdimg.com/static/fisp_static/common/img/searchbox/logo_news_276_88_1f9876a.png',
+                lang: 'zh-cmn-Hans',
+                renotify: false,
+                silent: false,
+                vibrate: [300, 100, 200, 100, 100],
+                noscreen: false,
+                sticky: true,
+                requireInteraction: true
+            });
+
+            notification.onclick = function () {
+                console.log('用户点击了通知');
+                window.open('https://www.baidu.com');
+            };
+
+            notification.onshow = function () {
+                console.log('通知显示了');
+            };
+
+            notification.onclose = function () {
+                console.log('通知被关闭了');
+            };
+
+            setTimeout(() => {
+                notification.close();
+            }, 30000);
         }
-    }
-    showNotification()
-    </script>
+    };
+</script>
+
 </body>
-
 </html>
