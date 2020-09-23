@@ -9,36 +9,16 @@
     <button id="btn">点我</button>
     <script type="text/javascript">
     function showNotification() {
-        var isFocus = true;
-        //Chrome/FireFox
-        window.onfocus = function() {
-            isFocus = true;
-        };
-        window.onblur = function() {
-            isFocus = false;
-        };
-
-        //IE
-        document.onfocusin = function() {
-            isFocus = true;
-        };
-        document.onfocusout = function() {
-            isFocus = false;
-        };
-
         if (window.Notification) {
             document.querySelector("#btn").onclick = function() {
-                console.log(1111)
-                if (!isFocus) {
-                    //判断是否有权限显示通知
-                    if (Notification.permission == "granted") {
+                //判断是否有权限显示通知
+                if (Notification.permission == "granted") {
+                    pushNotice();
+                } else if (Notification.permission != "denied") {
+                    //如果不是拒绝显示通知就请求允许显示通知
+                    Notification.requestPermission(function(permission) {
                         pushNotice();
-                    } else if (Notification.permission != "denied") {
-                        //如果不是拒绝显示通知就请求允许显示通知
-                        Notification.requestPermission(function(permission) {
-                            pushNotice();
-                        });
-                    }
+                    });
                 }
             }
         }
