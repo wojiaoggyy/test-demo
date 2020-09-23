@@ -2,24 +2,24 @@
 <html>
 
 <head></head>
+
 <body>
     <script type="text/javascript">
-        function pushNotice(){
-            console.log(1)
-            //判断是否有显示通知的权限
-            if(Notification.permission=="granted"){
-            console.log(2)
-                //初始化通知对象
-                var options = {
-                      body: "您有新的未读消息"
-                  }
-                  var notice = new Notification("通知",options);
-            }else{console.log(Notification.permission)}
+    Notification.requestPermission().then(result => {
+        if (result === 'denied') {
+            console.log('Permission wasn\'t granted. Allow a retry.');
+            return;
+        } else if (result === 'default') {
+            console.log('The permission request was dismissed.');
+            return;
+        } else {
+            var options = {
+                body: "您有新的未读消息"
+            }
+            var notice = new Notification("通知", options);
         }
-        Notification.requestPermission().then(res=>{
-            pushNotice()
-        })
-        
+
+    })
     </script>
 </body>
 
