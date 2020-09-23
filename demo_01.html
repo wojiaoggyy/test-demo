@@ -14,7 +14,7 @@
                   var notice = new Notification("通知",options);
             }else{console.log(Notification.permission)}
         }
-        Notification.requestPermission().then(res=>pushNotice())
+        Notification.requestPermission().then(res=>{pushNotice()})
         
     </script>
 </body>
