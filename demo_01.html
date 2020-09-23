@@ -6,26 +6,55 @@
 </head>
 
 <body>
+    <button id="btn">点我</button>
     <script type="text/javascript">
-    window.onload = function() {
-                let options = {
-                    body: "您有新的未读消息"
+    function showNotification() {
+        var isFocus = true;
+        //Chrome/FireFox
+        window.onfocus = function() {
+            isFocus = true;
+        };
+        window.onblur = function() {
+            isFocus = false;
+        };
+
+        //IE
+        document.onfocusin = function() {
+            isFocus = true;
+        };
+        document.onfocusout = function() {
+            isFocus = false;
+        };
+
+        if (window.Notification) {
+            document.querySelector("#btn").onclick = function() {
+                console.log(1111)
+                if (!isFocus) {
+                    //判断是否有权限显示通知
+                    if (Notification.permission == "granted") {
+                        pushNotice();
+                    } else if (Notification.permission != "denied") {
+                        //如果不是拒绝显示通知就请求允许显示通知
+                        Notification.requestPermission(function(permission) {
+                            pushNotice();
+                        });
+                    }
                 }
-
-        Notification.requestPermission().then(function(result) {
-            if (result === 'denied') {
-                console.log('Permission wasn\'t granted. Allow a retry.');
-                return;
-            } else if (result === 'default') {
-                console.log('The permission request was dismissed.');
-                return;
-            } else {
-                let notice = new Notification("通知", options);
             }
-
-        })
-        let notice = new Notification("通知", options);
+        }
     }
+
+    function pushNotice() {
+        //判断是否有显示通知的权限
+        if (Notification.permission == "granted") {
+            //初始化通知对象
+            var options = {
+                body: "您有新的未读消息"
+            }
+            var notice = new Notification("通知", options);
+        }
+    }
+    showNotification()
     </script>
 </body>
 
