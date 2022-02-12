@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+</head>
+
+<body>
+    <input type="text" id="input">
+    <button id="btn">开始解析</button>
+    <hr>
+    <video id="output-video" width="320px" height="180px" controls></video>
+    <script src="./ffmpeg.min.js"></script>
+    <script type="text/javascript">
+    function Uint8ArrayToString(fileData) {
+        var dataString = "";
+        for (var i = 0; i < fileData.length; i++) {
+            dataString += String.fromCharCode(fileData[i]);
+        }
+        return dataString
+    }
+
+
+    const { createFFmpeg, fetchFile } = FFmpeg
+    const ffmpeg = createFFmpeg({
+        corePath: './ffmpeg-core.js',
+    });
+
+    async function getmoive() {
+        await ffmpeg.load();
+        const name = "outvideo.mp4"
+        const url = document.querySelector("#input").value
+        let urlPre = url.slice(0, url.lastIndexOf("/")) + "/"
+
+        let str = ""
+        let arrs = Uint8ArrayToString(await fetchFile(url)).split("\n").filter(item => item.endsWith(".ts")).map(item => item = urlPre + item)
+
+        for (var i = 0; i < arrs.length; i++) {
+            let item = arrs[i]
+            let tsname = `ts${i}.ts`
+            ffmpeg.FS('writeFile', tsname, await fetchFile(item));
+            str += "|" + tsname
+        }
+        str = str.slice(1)
+
+        await ffmpeg.run("-i", `concat:${str}`, "-bsf:a", "aac_adtstoasc", "-movflags", "+faststart", "-c", "copy", name)
+        const datas = ffmpeg.FS("readFile", name)
+
+        document.getElementById('output-video').src = URL.createObjectURL(new Blob([datas.buffer], { type: 'video/mp4' }));
+    }
+
+    document.querySelector("#btn").onclick = getmoive
+    </script>
+</body>
+
+</html>
