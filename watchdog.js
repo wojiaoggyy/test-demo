@@ -116,7 +116,7 @@ const creatSvg = () => {
                     fill: "rgba(0,0,0,0.01) !important"
                 })
             )
-            elSpan2.textContent = "北京颐圣智能科技有限公司"
+            elSpan2.textContent = "北京xxxx科技有限公司"
             elT.appendChild(elSpan)
             elT.appendChild(elSpan2)
         }
