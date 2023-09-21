@@ -199,7 +199,7 @@ export const draw = (waterMark) => {
     //
     const watchdogSvg = document.querySelector("#watchdogSvg")
     // 方法一、mutation event方法
-    // watchdogSvg.addEventListener("DOMNodeRemoved", dealDebug)
+    watchdogSvg.addEventListener("DOMNodeRemoved", dealDebug)
     // 方法二、mutationObserver方法
     const config = {
         childList: true,
