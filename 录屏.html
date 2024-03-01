@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>视频流</title>
+    <style>
+        video {
+            display: block;
+            max-width: 1000px;
+            max-height: 600px;
+            margin: 20px auto;
+            border: 2px solid red;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-right: 30px;
+            font-size: 16px;
+            font-weight: bolder;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <button onclick="preview()">第一步、打开预览</button>
+        <button id="start" onclick="start()" disabled>第二步、开始录制</button>
+        <button id="pause" onclick="pause()" disabled>可选步、暂停录制</button>
+        <button id="end" onclick="end()" disabled>
+            第三步、结束录制并下载视频
+        </button>
+    </div>
+    <video id="video"></video>
+
+    <script type="text/javascript">
+        let recorder = null;
+        let recordData = [];
+        let stream = null;
+        let audioStream = null;
+        async function preview() {
+            audioStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+            stream = await window.navigator.mediaDevices.getDisplayMedia({
+                video: true,
+                audio: {
+                    autoGainControl: true,
+                    channelCount: 2,
+                    echoCancellation: true,
+                    noiseSuppression: true
+                }
+            });
+            audioStream.getAudioTracks().forEach(track => {
+                stream.addTrack(track);
+            });
+
+            const video = document.querySelector("#video");
+            video.srcObject = stream;
+            video.play();
+            document.querySelector("#start").removeAttribute("disabled");
+        }
+
+        function start() {
+            recordData = [];
+            recorder = new MediaRecorder(stream);
+            recorder.ondataavailable = function (e) {
+                console.log("触发了");
+                recordData.push(e.data);
+            };
+            recorder.onstop = function () {
+                const blob = new Blob(recordData, { type: recordData[0].type });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "video.mp4";
+                a.click();
+            };
+            recorder.start();
+            document.querySelector("#pause").removeAttribute("disabled");
+            document.querySelector("#end").removeAttribute("disabled");
+        }
+
+        function pause() {
+            const pauseDom = document.querySelector("#pause");
+            if (recorder.state === "paused") {
+                recorder.resume();
+                pauseDom.innerHTML = "可选步、暂停录制";
+            } else {
+                recorder.pause();
+                pauseDom.innerHTML = "继续录制";
+            }
+        }
+
+        function end() {
+            recorder.stop();
+
+            document.querySelector("#pause").toggleAttribute("disabled");
+            document.querySelector("#end").toggleAttribute("disabled");
+        }
+    </script>
+</body>
+
+</html>
