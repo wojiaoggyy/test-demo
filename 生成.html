@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>生成</title>
+    <style type="text/css">
+        h1 {
+            margin: 100px;
+        }
+
+        canvas {
+            margin-bottom: 200px;
+        }
+    </style>
+    <script src="./js/lz-string.min.js"></script>
+    <script src="./js/qrcode.min.js"></script>
+</head>
+
+<body>
+    <script type="text/javascript">
+        async function submit() {
+            let txt = document.querySelector("#input").value;
+            txt = LZString.compressToBase64(txt)
+            const div = document.querySelector("#code");
+            const centent = div.querySelectorAll("h1,canvas");
+            for (var i = 0; i < centent.length; i++) {
+                div.removeChild(centent[i]);
+            }
+            const max = Math.ceil(txt.length / 2400);
+            document.querySelector("#zongji").innerText = `总计： ${max} 个`;
+            for (var i = 0; i < max; i++) {
+                await draw(txt.substring(i * 2400, (i + 1) * 2400), i);
+            }
+        }
+
+        function draw(txt, index) {
+            const div = document.querySelector("#code");
+            QRCode.toCanvas(txt, {
+                version: 40,
+                errorCorrectionLevel: "L", //容错率L（低）H(高)
+            })
+                .then((canvas) => {
+                    const h1 = document.createElement("H1");
+                    h1.innerText = `索引：${index}`;
+                    div.append(h1);
+                    div.append(canvas);
+                    console.log(index);
+                })
+                .catch((err) => {
+                    console.log(err);
+                    alert("有错误")
+                });
+        }
+    </script>
+
+    <div style="display: flex; justify-content: space-between; align-items: center">
+        <textarea id="input" rows="5" style="flex: 1 1 auto"></textarea>
+        <button onclick="submit()" style="
+          padding: 10px 40px;
+          height: 80px;
+          font-size: 20px;
+          margin-left: 10px;
+          cursor: pointer;
+        ">
+            确定
+        </button>
+    </div>
+    <div style="margin: 50px auto; text-align: center">
+        <h1 id="zongji"></h1>
+        <div id="code"></div>
+    </div>
+</body>
+
+</html>
