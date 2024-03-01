@@ -4,3 +4,6 @@
  - [ffmpegtest](https://wojiaoggyy.github.io/test-demo/ffmpegtest.html)
  - [videoplay](https://wojiaoggyy.github.io/test-demo/videoplay.html)
  - [水印](https://wojiaoggyy.github.io/test-demo/watchdogTest.html)
+ - [录屏](https://wojiaoggyy.github.io/test-demo/录屏.html)
+ - [二维码生成](https://wojiaoggyy.github.io/test-demo/二维码生成.html)
+ - [二维码解码](https://wojiaoggyy.github.io/test-demo/二维码解码.html)
