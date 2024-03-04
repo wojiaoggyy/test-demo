@@ -7,3 +7,4 @@
  - [录屏](https://wojiaoggyy.github.io/test-demo/录屏.html)
  - [二维码生成](https://wojiaoggyy.github.io/test-demo/二维码生成.html)
  - [二维码解码](https://wojiaoggyy.github.io/test-demo/二维码解码.html)
+ - [头像预览裁切](https://wojiaoggyy.github.io/test-demo/头像预览裁切.html)
