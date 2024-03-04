@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title></title>
+	<style type="text/css">
+		.flex {
+			display: flex;
+		}
+
+		.box {
+			flex: none;
+			width: 400px;
+			height: 400px;
+			position: relative;
+			border: 1px solid #ccc;
+			margin: 100px;
+			user-select: none;
+		}
+
+		.border {
+			position: absolute;
+			top: 100px;
+			left: 100px;
+			right: 100px;
+			bottom: 100px;
+			border: 1px solid blue;
+			box-sizing: border-box;
+			cursor: move;
+		}
+
+		.tag {
+			width: 20px;
+			height: 20px;
+			border: 1px solid blue;
+			position: absolute;
+			cursor: pointer;
+		}
+
+		.topLeft {
+			left: -22px;
+			top: -22px;
+		}
+
+		.topRight {
+			right: -22px;
+			top: -22px;
+		}
+
+		.bottomLeft {
+			left: -22px;
+			bottom: -22px;
+		}
+
+		.bottomRight {
+			right: -22px;
+			bottom: -22px;
+		}
+
+		.img2 {
+			flex: none;
+			width: 200px;
+			height: 200px;
+			margin: 100px;
+			border: 1px solid #ccc;
+		}
+	</style>
+</head>
+
+<body>
+	<div>
+		<input type="file" accept=".jpg,.png,.jpeg" />
+	</div>
+	<div class="flex">
+		<div class="box">
+			<div style="overflow: hidden;max-width: 400px;max-height: 400px;">
+				<img class="img1" />
+			</div>
+			<div class="border">
+				<span onmousedown="tagMD(event,'topLeft')" class="tag topLeft"></span>
+				<span onmousedown="tagMD(event,'topRight')" class="tag topRight"></span>
+				<span onmousedown="tagMD(event,'bottomLeft')" class="tag bottomLeft"></span>
+				<span onmousedown="tagMD(event,'bottomRight')" class="tag bottomRight"></span>
+			</div>
+		</div>
+		<img src="" class=" img2" />
+	</div>
+
+	<script>
+		const input = document.querySelector("input");
+		let origin = null;
+		let scale = 1
+		let scaleOrigin = 1
+		const img = document.querySelector(".img1")
+		const img2 = document.querySelector(".img2")
+		input.onchange = (e) => {
+			origin = e.target.files[0];
+			const url = URL.createObjectURL(origin);
+			img.src = url;
+			img.onload = (e) => {
+				scale = img.naturalWidth / 400
+				scaleOrigin = scale
+				draw()
+			}
+		};
+
+		let _left = 100;
+		let _top = 100;
+		let _right = 100;
+		let _bottom = 100;
+		let _s_left = 100;
+		let _s_top = 100;
+		let _s_right = 100;
+		let _s_bottom = 100;
+		let startX = 0;
+		let startY = 0;
+		let moveing = false;
+
+		let direction = "";
+		let tagMoveing = false;
+
+		let imgLeft = 0
+		let imgTop = 0
+		let _s_imgLeft = 0
+		let _s_imgTop = 0
+		let imgMoveing = false
+
+
+		const border = document.querySelector(".border");
+
+		const setStyle = () => {
+			border.style.left = _left + "px";
+			border.style.top = _top + "px";
+			border.style.right = _right + "px";
+			border.style.bottom = _bottom + "px";
+			draw()
+		};
+		border.onmousedown = (e) => {
+			const { clientX, clientY } = e;
+			startX = clientX;
+			startY = clientY;
+			_s_left = _left;
+			_s_top = _top;
+			_s_right = _right;
+			_s_bottom = _bottom;
+			moveing = true;
+		};
+		function tagMD(e, d) {
+			e.stopPropagation();
+			const { clientX, clientY } = e;
+			startX = clientX;
+			startY = clientY;
+			_s_left = _left;
+			_s_top = _top;
+			_s_right = _right;
+			_s_bottom = _bottom;
+
+			direction = d
+			tagMoveing = true;
+		}
+
+		document.onmouseup = () => {
+			moveing = false;
+			tagMoveing = false;
+			imgMoveing = false
+		};
+		document.onmousemove = (e) => {
+			if (moveing) {
+				const { clientX, clientY } = e;
+				const diffX = clientX - startX
+				const diffY = clientY - startY
+				if (_s_left + diffX <= 0) {
+					_left = 0
+					_right = _s_right + _s_left
+				} else if (_s_right - diffX <= 0) {
+					_left = _s_left + _s_right
+					_right = 0
+				} else {
+					_left = _s_left + diffX
+					_right = _s_right - diffX
+				}
+
+				if (_s_top + diffY <= 0) {
+					_top = 0
+					_bottom = _s_bottom + _s_top
+				} else if (_s_bottom - diffY <= 0) {
+					_top = _s_top + _s_bottom
+					_bottom = 0
+				} else {
+					_top = _s_top + diffY
+					_bottom = _s_bottom - diffY
+				}
+				setStyle()
+			}
+			if (tagMoveing) {
+				const { clientX, clientY } = e;
+				if (direction === "bottomRight") {
+					const max = Math.max(clientX - startX, clientY - startY)
+					const min = Math.min(max, _s_bottom, _s_right)
+					if (_left + _s_right - min <= 300) {
+						_right = _s_right - min
+						_bottom = _s_bottom - min
+					}
+				} else if (direction === "bottomLeft") {
+					const max = Math.max(startX - clientX, clientY - startY)
+					const min = Math.min(max, _s_bottom, _s_left)
+					if (_right + _s_left - min <= 300) {
+						_left = _s_left - min
+						_bottom = _s_bottom - min
+					}
+				} else if (direction === "topRight") {
+					const max = Math.max(clientX - startX, startY - clientY)
+					const min = Math.min(max, _s_top, _s_right)
+					if (_left + _s_right - min <= 300) {
+						_right = _s_right - min
+						_top = _s_top - min
+					}
+				} else if (direction === "topLeft") {
+					const max = Math.max(startX - clientX, startY - clientY)
+					const min = Math.min(max, _s_top, _s_left)
+					if (_right + _s_left - min <= 300) {
+						_left = _s_left - min
+						_top = _s_top - min
+					}
+				}
+				setStyle()
+			}
+
+			if (imgMoveing) {
+				const { clientX, clientY } = e;
+				const diffX = clientX - startX
+				const diffY = clientY - startY
+				const imgW = 1 / scale * img.naturalWidth
+				const imgH = 1 / scale * img.naturalHeight
+				imgLeft = _s_imgLeft - diffX
+				imgTop = _s_imgTop - diffY
+				imgLeft = Math.min(imgLeft,imgW-400)
+				imgLeft = Math.max(imgLeft,0)
+				imgTop = Math.min(imgTop,imgH-400)
+				imgTop = Math.max(imgTop,0)
+				draw()
+			}
+		};
+
+		function draw() {
+			setImg1()
+			const canvas = document.createElement("canvas")
+			canvas.width = 200
+			canvas.height = 200
+			const context = canvas.getContext("2d")
+			const size = scale * (400 - _left - _right)
+			context.drawImage(img, (_left+imgLeft) * scale, (_top+imgTop) * scale, size, size, 0, 0, 200, 200)
+			img2.src = canvas.toDataURL()
+		}
+
+		document.querySelector(".box").onmousewheel = e => {
+			if (e.deltaY < 0) {
+				scale *= 0.9
+			} else {
+				scale *= 1.1
+			}
+			scale = Math.max(scale, 1)
+			scale = Math.min(scale, scaleOrigin)
+			const imgW = 1 / scale * img.naturalWidth
+			const imgH = 1 / scale * img.naturalHeight
+			imgLeft = Math.min(imgLeft,imgW-400)
+			imgLeft = Math.max(imgLeft,0)
+			imgTop = Math.min(imgTop,imgH-400)
+			imgTop = Math.max(imgTop,0)
+			draw()
+		}
+
+		function setImg1() {
+			img.style.width = 1 / scale * img.naturalWidth + "px"
+			img.style.transform = `translate(${-imgLeft}px, ${-imgTop}px)`
+		}
+
+		img.onmousedown = (e) => {
+			e.preventDefault()
+			const { clientX, clientY } = e;
+			startX = clientX;
+			startY = clientY;
+			_s_imgLeft = imgLeft;
+			_s_imgTop = imgTop;
+
+			imgMoveing = true;
+		}
+
+
+	</script>
+</body>
+
+</html>
